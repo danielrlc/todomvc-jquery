@@ -14,7 +14,6 @@ jQuery(function ($) {
       /*jshint bitwise:false */
       var i, random;
       var uuid = '';
-
       for (i = 0; i < 32; i++) {
         random = (Math.random() * 16) | 0;
         if (i === 8 || i === 12 || i === 16 || i === 20) {
@@ -24,9 +23,9 @@ jQuery(function ($) {
           16,
         );
       }
-
       return uuid;
     },
+
     pluralize: function (count, word) {
       return count === 1 ? word : word + 's';
     },
@@ -52,7 +51,6 @@ jQuery(function ($) {
       this.todoTemplate = Handlebars.compile($('#todo-template').html());
       this.footerTemplate = Handlebars.compile($('#footer-template').html());
       this.bindEvents();
-
       new Router({
         '/:filter': function (filter) {
           this.filter = filter;
@@ -60,6 +58,7 @@ jQuery(function ($) {
         }.bind(this),
       }).init('/all');
     },
+
     // this has to be bound all over the place. That's all kept organised here.
     // But why is it necessary?
     // Because these are all callbacks.
@@ -82,6 +81,7 @@ jQuery(function ($) {
         .on('focusout', '.edit', this.update.bind(this))
         .on('click', '.destroy', this.destroy.bind(this));
     },
+
     render: function () {
       var todos = this.getFilteredTodos();
       // Handlebars handles creating this template.
@@ -100,6 +100,7 @@ jQuery(function ($) {
       // This is setting/updating the value of store.
       util.store('todos-jquery', this.todos);
     },
+
     renderFooter: function () {
       var todoCount = this.todos.length;
       var activeTodoCount = this.getActiveTodos().length;
@@ -109,85 +110,84 @@ jQuery(function ($) {
         completedTodos: todoCount - activeTodoCount,
         filter: this.filter,
       });
-
       $('.footer')
         .toggle(todoCount > 0)
         .html(template);
     },
+
     toggleAll: function (e) {
       var isChecked = $(e.target).prop('checked');
-
       this.todos.forEach(function (todo) {
         todo.completed = isChecked;
       });
-
       this.render();
     },
+
     getActiveTodos: function () {
       return this.todos.filter(function (todo) {
         return !todo.completed;
       });
     },
+
     getCompletedTodos: function () {
       return this.todos.filter(function (todo) {
         return todo.completed;
       });
     },
+
     getFilteredTodos: function () {
       if (this.filter === 'active') {
         return this.getActiveTodos();
       }
-
       if (this.filter === 'completed') {
         return this.getCompletedTodos();
       }
-
       return this.todos;
     },
+
     destroyCompleted: function () {
       this.todos = this.getActiveTodos();
       this.render();
     },
+
     // accepts an element from inside the `.item` div and
     // returns the corresponding index in the `todos` array
     getIndexFromEl: function (el) {
       var id = $(el).closest('li').data('id');
       var todos = this.todos;
       var i = todos.length;
-
       while (i--) {
         if (todos[i].id === id) {
           return i;
         }
       }
     },
+
     create: function (e) {
       // The $ in $input is a jQuery naming convention.
       var $input = $(e.target);
       // Remove whitespace from the beginning and end of the input field.
       var val = $input.val().trim();
-
       // Don't do anything if the enter key wasn't pressed.
       // Or if the input field is empty.
       if (e.which !== ENTER_KEY || !val) {
         return;
       }
-
       this.todos.push({
         id: util.uuid(),
         title: val,
         completed: false,
       });
-
       $input.val('');
-
       this.render();
     },
+
     toggle: function (e) {
       var i = this.getIndexFromEl(e.target);
       this.todos[i].completed = !this.todos[i].completed;
       this.render();
     },
+
     editingMode: function (e) {
       var $input = $(e.target).closest('li').addClass('editing').find('.edit');
       // puts caret at end of input
@@ -196,20 +196,20 @@ jQuery(function ($) {
       $input.val(tmpStr);
       $input.focus();
     },
+
     editKeyup: function (e) {
       if (e.which === ENTER_KEY) {
         e.target.blur();
       }
-
       if (e.which === ESCAPE_KEY) {
         $(e.target).data('abort', true).blur();
       }
     },
+
     update: function (e) {
       var el = e.target;
       var $el = $(el);
       var val = $el.val().trim();
-
       if ($el.data('abort')) {
         $el.data('abort', false);
       } else if (!val) {
@@ -218,9 +218,9 @@ jQuery(function ($) {
       } else {
         this.todos[this.getIndexFromEl(el)].title = val;
       }
-
       this.render();
     },
+
     destroy: function (e) {
       this.todos.splice(this.getIndexFromEl(e.target), 1);
       this.render();
